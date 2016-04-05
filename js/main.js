@@ -30,6 +30,7 @@ app.main = {
             INPUT:1,
             OVER:2,
             BEGIN:3,
+            
     }),
     buttonMagenta:Object.seal({
         posX:0,
@@ -66,8 +67,26 @@ app.main = {
      
         buttonState:undefined,
     }),
+     backgroundPad:Object.seal({
+        posX:0,
+        posY:0,
+        color:0,
+     }),
+    sButtonHover:false,  
     attemptC:0,
     images:new Array(),
+    DEMON:Object.seal({
+    demonGIF:new Array(),
+    demonCounter:0,
+    active:false,
+    posX:0,
+    posY:0,
+    veloX:0,
+    veloY:0,
+    accX:0,
+    accY:0,
+    }),
+    frameSlower:0,
     gameState:undefined,
 	init : function() {
 		console.log("app.main.init() called");
@@ -90,15 +109,19 @@ app.main = {
            //Orange
    
         this.buttonOrange.buttonState=this.BUTTONSTATE.INACTIVE;
-        //create buttons      
+        //create buttons     
+       
+        this.drawButton(this.ctx,this.backgroundPad); 
         this.drawButton(this.ctx,this.buttonMagenta);
         this.drawButton(this.ctx,this.buttonCyan);
         this.drawButton(this.ctx,this.buttonGreen);
         this.drawButton(this.ctx,this.buttonYellow);
+        this.drawButton(this.ctx,this.buttonOrange);
+              
         for(var i =0; i<6;i+=2){
-            this.flash.flashList[i]=Math.floor(getRandom(1,5));
+            this.flash.flashList[i]=Math.floor(getRandom(1,6));
         }
-        this.gameState=this.GAMESTATE.FLASHING;
+        this.gameState=this.GAMESTATE.BEGIN;
         //mouseEvents
         this.canvas.onmousemove=this.checkMousePos.bind(this);
         this.canvas.onmousedown=this.mouseDown.bind(this);
@@ -129,11 +152,43 @@ app.main = {
             }
         
         }
+       if(this.gameState===this.GAMESTATE.BEGIN)
+       {
+           this.ctx.globalAlpha=0.3;
+       }
+       else{
+           this.ctx.globalAlpha=1;
+       }
        debugger;
+        this.drawButton(this.ctx,this.backgroundPad); 
         this.drawButton(this.ctx,this.buttonMagenta);
         this.drawButton(this.ctx,this.buttonCyan);
         this.drawButton(this.ctx,this.buttonGreen);
         this.drawButton(this.ctx,this.buttonYellow);
+        this.drawButton(this.ctx,this.buttonOrange);
+          if(this.gameState===this.GAMESTATE.BEGIN)
+        {
+             this.ctx.globalAlpha=1;
+             this.fillText(this.ctx,"Prototype Start Screen Lacks Title",500,240,"30pt Arial","red");
+             if(this.sButtonHover)
+             {
+                   this.ctx.fillStyle="black"
+                   this.ctx.strokeStyle="white"
+             this.ctx.fillRect(730,440,100,25);
+             this.ctx.strokeRect(730,440,100,25);
+             this.fillText(this.ctx,"Start",755,460,"18pt Arial","white");
+             }else{
+             this.ctx.fillStyle="white"
+             this.ctx.fillRect(730,440,100,25);
+             this.fillText(this.ctx,"Start",755,460,"18pt Arial","black");
+             }
+        }
+         if(this.attemptC*2>=this.flash.flashList.length)
+        {
+            this.flash.flashList.push(Math.floor(getRandom(1,6)));
+            this.flash.flashList.push(0);
+            this.restart();
+        }       
         if(this.gameState==this.GAMESTATE.OVER)
         {
             this.ctx.fillStyle='black';
@@ -141,11 +196,53 @@ app.main = {
             this.fillText(this.ctx,"click to restart",540,440,"30pt Arial","red");
             this.flash.flashList=[0,0,0,0,0,0];
              for(var i =0; i<6;i+=2){
-            this.flash.flashList[i]=Math.floor(getRandom(1,5));
+            this.flash.flashList[i]=Math.floor(getRandom(1,6));
         }
         }
+        this.DEMON.active=true;
+         this.animateGifs();
 	},
     
+    animateGifs: function()
+    {
+        //if demon is active 
+        if(this.DEMON.active)
+        {
+        this.DEMON.veloX+=this.DEMON.accX;
+        this.DEMON.veloY+=this.DEMON.accY;    
+        this.DEMON.posX+=this.DEMON.veloX;
+        this.DEMON.posY+=this.DEMON.veloY;
+            
+        this.ctx.drawImage(this.DEMON.demonGIF[this.DEMON.demonCounter],this.DEMON.posX,this.DEMON.posY);
+        if(this.frameSlower==5)
+        {
+        this.DEMON.demonCounter++;
+        }
+        if(this.DEMON.demonCounter>59)
+        {
+            this.DEMON.demonCounter=0;
+        }
+        }
+        this.frameSlower++;
+        if(this.frameSlower>5)
+        {
+            this.frameSlower=0;
+        }
+    },
+     seek:function(xPos,yPos)
+     {
+       var desiredx = xPos- this.DEMON.posX;  
+       var desiredy = yPos -this.DEMON.posY;
+       var leng= Math.sqrt((desiredx*desiredx)+(desiredy*desiredy))
+        desiredx /=leng;
+        desiredy /=leng;
+        this.DEMON.accX=desiredx;
+        this.DEMON.accY=desiredy;
+        
+    //mouse fleer would have basic implementation 
+    //sort of copied and pasted from seek, but the opposite velocity   
+  
+     },
      drawButton: function(ctx,btn)
     {
       if(btn.buttonState===this.BUTTONSTATE.INACTIVE)
@@ -167,6 +264,11 @@ app.main = {
       ctx.drawImage(this.images[btn.color+1],btn.posX,btn.posY);
       ctx.restore();
       }
+      else{
+      ctx.save();
+      ctx.drawImage(this.images[btn.color],btn.posX,btn.posY);
+      ctx.restore();
+      }
     },
      checkAttempt(attempt){
          if(this.flash.flashList[this.attemptC*2]==attempt)
@@ -180,13 +282,17 @@ app.main = {
      },
     mouseDown:function(e)
     {
+        if(this.gameState===this.GAMESTATE.BEGIN)
+        {
+            
+        }
         if(this.gameState===this.GAMESTATE.OVER)
         {
             this.restart();
         }
         if(this.attemptC*2>=this.flash.flashList.length)
         {
-            this.flash.flashList.push(Math.floor(getRandom(1,5)));
+            this.flash.flashList.push(Math.floor(getRandom(1,6)));
             this.flash.flashList.push(0);
             this.restart();
         }
@@ -199,7 +305,7 @@ app.main = {
            this.attemptC++;
            break;
            case 1:
-           this.buttonCyan.buttonState=this.BUTTONSTATE.DOWN;
+           this.buttonYellow.buttonState=this.BUTTONSTATE.DOWN;
            this.checkAttempt(2);
            this.attemptC++;
            break;
@@ -209,79 +315,121 @@ app.main = {
            this.attemptC++;
            break;
            case 3:
-           this.buttonYellow.buttonState=this.BUTTONSTATE.DOWN;
+           this.buttonCyan.buttonState=this.BUTTONSTATE.DOWN;
            this.checkAttempt(4);
            this.attemptC++;
+           break;
+           case 4:
+           this.buttonOrange.buttonState=this.BUTTONSTATE.DOWN;
+           this.checkAttempt(5);
+           this.attemptC++;
+           break;
+           case 25:
+           this.gameState=this.GAMESTATE.FLASHING;
            break;
        }
     },
     checkMousePos: function(e)
     {
         var mouse= getMouse(e);
+        this.seek(mouse.x,mouse.y);
         //reset everything to inactive
+        if(this.gameState===this.GAMESTATE.BEGIN){
+         
+            if(mouse.x>730&& mouse.x<830 && mouse.y>440 && mouse.y<465)
+            {
+            this.sButtonHover=true;
+            return 25;
+            }else{
+                this.sButtonHover=false;
+            }
+        }
         this.buttonMagenta.buttonState=this.BUTTONSTATE.INACTIVE;
         this.buttonCyan.buttonState=this.BUTTONSTATE.INACTIVE;
         this.buttonGreen.buttonState=this.BUTTONSTATE.INACTIVE;
         this.buttonYellow.buttonState=this.BUTTONSTATE.INACTIVE;
+        this.buttonOrange.buttonState=this.BUTTONSTATE.INACTIVE;
         // within magenta 
         //input phase
         if(this.gameState===this.GAMESTATE.INPUT){
-        if(mouse.x>this.buttonMagenta.posX&&mouse.x<this.buttonMagenta.posX+this.buttonMagenta.width)
-        {
-            
-            if(mouse.y>this.buttonMagenta.posY&&mouse.y<this.buttonMagenta.posY+this.buttonMagenta.width)
-            {
+       
+                var x = 215+this.buttonMagenta.posX;
+                var y = 450+this.buttonMagenta.posY;
+                this.ctx.save();
+                this.ctx.beginPath();
+                this.ctx.moveTo(x,y);
+                this.ctx.quadraticCurveTo(x+50,y+175,x+295,y+195);
+                this.ctx.lineTo(x+295,y+95);
+                this.ctx.quadraticCurveTo(x+170,y+85,x+145,y)
+                this.ctx.closePath();
+                if(this.ctx.isPointInPath(mouse.x,mouse.y))
+                 {
+                this.ctx.restore();
                 this.buttonMagenta.buttonState=this.BUTTONSTATE.HOVER;
                 return 0;
-            }else{
-                this.buttonMagenta.buttonState=this.BUTTONSTATE.INACTIVE;
-            }
-        }else{
-            this.buttonMagenta.buttonState=this.BUTTONSTATE.INACTIVE;
-        }
-        // within cyan 
-        if(mouse.x>this.buttonCyan.posX&&mouse.x<this.buttonCyan.posX+this.buttonCyan.width)
-        {
-            
-            if(mouse.y>this.buttonCyan.posY&&mouse.y<this.buttonCyan.posY+this.buttonCyan.height)
-            {
-                this.buttonCyan.buttonState=this.BUTTONSTATE.HOVER;
+                 }
+
+        // within yellow 
+       
+                 x = 210+this.buttonYellow.posX;
+                 y = 420+this.buttonYellow.posY;
+                this.ctx.beginPath();
+                this.ctx.moveTo(x,y);
+                this.ctx.quadraticCurveTo(x+55,y-165,x+300,y-185);
+                this.ctx.lineTo(x+300,y-90);
+                this.ctx.quadraticCurveTo(x+175,y-85,x+150,y);
+                this.ctx.closePath();
+                if(this.ctx.isPointInPath(mouse.x,mouse.y)){
+                this.buttonYellow.buttonState=this.BUTTONSTATE.HOVER;
                 return 1;
-            }else{
-                this.buttonCyan.buttonState=this.BUTTONSTATE.INACTIVE;
-            }
-        }else{
-            this.buttonCyan.buttonState=this.BUTTONSTATE.INACTIVE;
-        }
+                 }
         // within Green 
-        if(mouse.x>this.buttonGreen.posX&&mouse.x<this.buttonGreen.posX+this.buttonGreen.width)
-        {
-            
-            if(mouse.y>this.buttonGreen.posY&&mouse.y<this.buttonGreen.posY+this.buttonGreen.height)
-            {
+                 x = 522+this.buttonGreen.posX;
+                 y = 440+this.buttonGreen.posY;
+                this.ctx.save();
+                this.ctx.beginPath();
+                this.ctx.ellipse(x,y,131,85,0,Math.PI*2,false);
+                this.ctx.closePath();
+                if(this.ctx.isPointInPath(mouse.x,mouse.y))
+                {
+                this.ctx.restore();
                 this.buttonGreen.buttonState=this.BUTTONSTATE.HOVER;
                 return 2;
-            }else{
-                this.buttonGreen.buttonState=this.BUTTONSTATE.INACTIVE;
-            }
-        }else{
-            this.buttonGreen.buttonState=this.BUTTONSTATE.INACTIVE;
-        }
-        // within Yellow 
-        if(mouse.x>this.buttonYellow.posX&&mouse.x<this.buttonYellow.posX+this.buttonYellow.width)
-        {
-            
-            if(mouse.y>this.buttonYellow.posY&&mouse.y<this.buttonYellow.posY+this.buttonYellow.height)
-            {
-                this.buttonYellow.buttonState=this.BUTTONSTATE.HOVER;
+                }
+        // within cyan 
+       
+                 x = 535+this.buttonCyan.posX;
+                 y = 240+this.buttonCyan.posY;
+                this.ctx.save();
+                this.ctx.beginPath();
+                this.ctx.moveTo(x,y);
+                this.ctx.quadraticCurveTo(x+235,y,x+300,y+180);
+                this.ctx.lineTo(x+150,y+180);
+                this.ctx.quadraticCurveTo(x+135,y+100,x,y+90);
+                this.ctx.closePath();
+                if(this.ctx.isPointInPath(mouse.x,mouse.y)){                   
+                this.ctx.restore()
+                this.buttonCyan.buttonState=this.BUTTONSTATE.HOVER;
                 return 3;
-            }else{
-                this.buttonYellow.buttonState=this.BUTTONSTATE.INACTIVE;
-            }
-        }else{
-            this.buttonYellow.buttonState=this.BUTTONSTATE.INACTIVE;
-        }
-      
+                }
+           //within orange
+         
+       
+                 x = 535+this.buttonOrange.posX;
+                 y = 650+this.buttonOrange.posY;
+                this.ctx.save();
+                this.ctx.beginPath();
+                this.ctx.moveTo(x,y);
+                this.ctx.quadraticCurveTo(x+245,y-20,x+300,y-200);
+                this.ctx.lineTo(x+150,y-200);
+                this.ctx.quadraticCurveTo(x+120,y-110,x,y-100)
+                this.ctx.closePath();
+                if(this.ctx.isPointInPath(mouse.x,mouse.y))
+                {
+                this.ctx.restore();
+                this.buttonOrange.buttonState=this.BUTTONSTATE.HOVER;
+                return 4;
+                }     
         }
     },
     flash:Object.seal({
@@ -300,6 +448,7 @@ app.main = {
             this.buttonCyan.buttonState=this.BUTTONSTATE.INACTIVE;
             this.buttonGreen.buttonState=this.BUTTONSTATE.INACTIVE;
             this.buttonYellow.buttonState=this.BUTTONSTATE.INACTIVE;
+            this.buttonOrange.buttonState=this.BUTTONSTATE.INACTIVE;
         },
     active:function(){
            if(this.flash.flashList[this.flash.currentFlash]==0)
@@ -308,6 +457,7 @@ app.main = {
             this.buttonCyan.buttonState=this.BUTTONSTATE.INACTIVE;
             this.buttonGreen.buttonState=this.BUTTONSTATE.INACTIVE;
             this.buttonYellow.buttonState=this.BUTTONSTATE.INACTIVE;
+            this.buttonOrange.buttonState=this.BUTTONSTATE.INACTIVE;
             }
             //flashred
             
@@ -315,10 +465,10 @@ app.main = {
             {
              this.buttonMagenta.buttonState=this.BUTTONSTATE.HOVER;
             }
-             //flashBlue
+             //flashYellow
             if(this.flash.flashList[this.flash.currentFlash]==2)
             {
-             this.buttonCyan.buttonState=this.BUTTONSTATE.HOVER;
+             this.buttonYellow.buttonState=this.BUTTONSTATE.HOVER;
             }
              //flashGreen
             if(this.flash.flashList[this.flash.currentFlash]==3)
@@ -328,9 +478,14 @@ app.main = {
              //flashYellow
             if(this.flash.flashList[this.flash.currentFlash]==4)
             {
-             this.buttonYellow.buttonState=this.BUTTONSTATE.HOVER;
+             this.buttonCyan.buttonState=this.BUTTONSTATE.HOVER;
             }
           
+           //flashYellow
+            if(this.flash.flashList[this.flash.currentFlash]==5)
+            {
+             this.buttonOrange.buttonState=this.BUTTONSTATE.HOVER;
+            }
         },
   
   
