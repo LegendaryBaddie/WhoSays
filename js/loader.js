@@ -25,11 +25,11 @@ window.onload = function(){
     //preload array via https://perishablepress.com/3-ways-preload-images-css-javascript-ajax/
    
    
-			function preload(load) {
+			function preload(load,arrayToLoad) {
 				for (var i = 0; i < load.length; i++) {
-					app.main.images[i] = new Image()
-					app.main.images[i].src = load[i]
-				}
+					arrayToLoad[i] = new Image();
+					arrayToLoad[i].src = load[i];
+				}    
 			}
             var stuff=[
 				"media/board/board.png",
@@ -42,7 +42,18 @@ window.onload = function(){
                 "media/board/orange_UP.png",
                 "media/board/orange_DOWN.png",
                 "media/board/yellow_UP.png",
-                "media/board/yellow_DOWN.png"]
-			preload(stuff)
+                "media/board/yellow_DOWN.png"];
+              var demonStuff=[];
+              for(var i=0;i<60;i++)
+              {
+                   
+                  if(i>9){
+                 demonStuff.push("media/demonGIF/demon00"+i.toString()+".png");
+                  }else{
+                 demonStuff.push("media/demonGIF/demon000"+i.toString()+".png");
+                  }
+              } 
+			preload(stuff,app.main.images);
+            preload(demonStuff,app.main.DEMON.demonGIF);
 	app.main.init();
 }

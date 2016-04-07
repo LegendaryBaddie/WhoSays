@@ -75,6 +75,18 @@ app.main = {
     sButtonHover:false,  
     attemptC:0,
     images:new Array(),
+    DEMON:Object.seal({
+    demonGIF:new Array(),
+    demonCounter:0,
+    active:false,
+    posX:0,
+    posY:0,
+    veloX:0,
+    veloY:0,
+    accX:0,
+    accY:0,
+    }),
+    frameSlower:0,
     gameState:undefined,
 	init : function() {
 		console.log("app.main.init() called");
@@ -187,8 +199,50 @@ app.main = {
             this.flash.flashList[i]=Math.floor(getRandom(1,6));
         }
         }
+        this.DEMON.active=true;
+         this.animateGifs();
 	},
     
+    animateGifs: function()
+    {
+        //if demon is active 
+        if(this.DEMON.active)
+        {
+        this.DEMON.veloX+=this.DEMON.accX;
+        this.DEMON.veloY+=this.DEMON.accY;    
+        this.DEMON.posX+=this.DEMON.veloX;
+        this.DEMON.posY+=this.DEMON.veloY;
+            
+        this.ctx.drawImage(this.DEMON.demonGIF[this.DEMON.demonCounter],this.DEMON.posX,this.DEMON.posY);
+        if(this.frameSlower==5)
+        {
+        this.DEMON.demonCounter++;
+        }
+        if(this.DEMON.demonCounter>59)
+        {
+            this.DEMON.demonCounter=0;
+        }
+        }
+        this.frameSlower++;
+        if(this.frameSlower>5)
+        {
+            this.frameSlower=0;
+        }
+    },
+     seek:function(xPos,yPos)
+     {
+       var desiredx = xPos- this.DEMON.posX;  
+       var desiredy = yPos -this.DEMON.posY;
+       var leng= Math.sqrt((desiredx*desiredx)+(desiredy*desiredy))
+        desiredx /=leng;
+        desiredy /=leng;
+        this.DEMON.accX=desiredx;
+        this.DEMON.accY=desiredy;
+        
+    //mouse fleer would have basic implementation 
+    //sort of copied and pasted from seek, but the opposite velocity   
+  
+     },
      drawButton: function(ctx,btn)
     {
       if(btn.buttonState===this.BUTTONSTATE.INACTIVE)
@@ -278,6 +332,7 @@ app.main = {
     checkMousePos: function(e)
     {
         var mouse= getMouse(e);
+        this.seek(mouse.x,mouse.y);
         //reset everything to inactive
         if(this.gameState===this.GAMESTATE.BEGIN){
          
