@@ -45,15 +45,49 @@ window.onload = function(){
                 "media/board/yellow_DOWN.png"];
               var demonStuff=[];
               for(var i=0;i<60;i++)
-              {
-                   
+              {   
                   if(i>9){
                  demonStuff.push("media/demonGIF/demon00"+i.toString()+".png");
                   }else{
                  demonStuff.push("media/demonGIF/demon000"+i.toString()+".png");
                   }
               } 
+              var rabbitStuff=[];
+              for(var i=0;i<32;i++)
+              {   
+                  if(i>9){
+                 rabbitStuff.push("media/rabbitGIF/rabbit_temp00"+i.toString()+".png");
+                  }else{
+                 rabbitStuff.push("media/rabbitGIF/rabbit_temp000"+i.toString()+".png");
+                  }
+              }
+               var motorcycleStuff=[];
+              for(var i=0;i<19;i++)
+              {   
+                  if(i>9){
+                 motorcycleStuff.push("media/motorcycleGIF/moto00"+i.toString()+".png");
+                  }else{
+                 motorcycleStuff.push("media/motorcycleGIF/moto000"+i.toString()+".png");
+                  }
+              }  
+              var alanStuff=[];
+              for(var i=0;i<103;i++)
+              {   
+                  if(i>99)
+                  {
+                  alanStuff.push("media/alanGIF/alan0"+i.toString()+".png");
+                  }else if(i>9){
+                 alanStuff.push("media/alanGIF/alan00"+i.toString()+".png");
+                  }else{
+                 alanStuff.push("media/alanGIF/alan000"+i.toString()+".png");
+                  }
+              }  
+              
+              
 			preload(stuff,app.main.images);
             preload(demonStuff,app.main.DEMON.demonGIF);
+            preload(rabbitStuff,app.main.RABBIT.rabbitGIF);
+            preload(motorcycleStuff,app.main.MOTORCYCLE.motoGIF);
+            preload(alanStuff,app.main.ALAN.alanGIF);
 	app.main.init();
 }

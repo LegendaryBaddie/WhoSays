@@ -75,10 +75,32 @@ app.main = {
     sButtonHover:false,  
     attemptC:0,
     images:new Array(),
+    ALAN:Object.seal({
+        posX:0,
+        posY:0,
+        alanCounter:0,
+        alanGIF:new Array(),
+        active:false,
+    }),
+    MOTORCYCLE:Object.seal({
+        posX:0,
+        posY:0,
+        motoCounter:0,
+        motoGIF:new Array(),
+        active:false,
+    }),
+    RABBIT:Object.seal({
+        posX:0,
+        posY:0,
+        rabbitCounter:0,
+        rabbitGIF:new Array(),
+        active:false,
+    }), 
     DEMON:Object.seal({
     demonGIF:new Array(),
     demonCounter:0,
     active:false,
+    lastMouse:undefined,
     posX:0,
     posY:0,
     veloX:0,
@@ -91,8 +113,11 @@ app.main = {
 	init : function() {
 		console.log("app.main.init() called");
 		// initialize properties
-		this.canvas = document.querySelector('canvas');
+		this.canvas = document.getElementById('c1');
 		this.ctx = this.canvas.getContext('2d');
+        this.canvas2 = document.getElementById('c2');
+        this.ctx2=this.canvas2.getContext('2d');
+        
         // initialize buttons
        //magenta button       
         
@@ -199,29 +224,129 @@ app.main = {
             this.flash.flashList[i]=Math.floor(getRandom(1,6));
         }
         }
-        this.DEMON.active=true;
-         this.animateGifs();
+        
+      
+        this.animateGifs();
 	},
-    
+
     animateGifs: function()
     {
+        
+        
+       if(this.flash.flashList.length/2>5)
+       {this.DEMON.active=true;}
+    
+        if(this.flash.flashList.length/2>7)
+       {this.RABBIT.active=true;}
+    
+        if(this.flash.flashList.length/2>10)
+       {this.MOTORCYCLE.active=true;}
+    
+        if(this.flash.flashList.length/2>15)
+       {this.ALAN.active=true;}
+    
+       
+        //if motorcycle is active
+        if(this.MOTORCYCLE.active&&this.gameState===this.GAMESTATE.FLASHING)
+        {
+            this.ctx.drawImage(this.MOTORCYCLE.motoGIF[this.MOTORCYCLE.motoCounter],0,200);
+            if(this.frameSlower==5)
+            {
+                this.MOTORCYCLE.motoCounter++;
+            }
+            if(this.MOTORCYCLE.motoCounter>18)
+            {
+                this.MOTORCYCLE.motoCounter=0;
+            }
+            
+        }   
+        
+        //if rabbit is active
+        if(this.RABBIT.active&&this.gameState===this.GAMESTATE.FLASHING)
+        {
+            this.ctx.drawImage(this.RABBIT.rabbitGIF[this.RABBIT.rabbitCounter],400,75);
+            if(this.frameSlower==5)
+            {
+                this.RABBIT.rabbitCounter++;
+            }
+            if(this.RABBIT.rabbitCounter>31)
+            {
+                this.RABBIT.rabbitCounter=0;
+            }
+        }
+       
+        //if alan is active
+        if(this.ALAN.active&&this.gameState===this.GAMESTATE.FLASHING)
+        {
+         this.ctx.drawImage(this.ALAN.alanGIF[this.ALAN.alanCounter],60,100);
+         if(this.frameSlower==5)
+         {
+             this.ALAN.alanCounter++;
+         }   
+         if(this.ALAN.alanCounter>102)
+         {
+             this.ALAN.alanCounter=0;
+         }
+        }
         //if demon is active 
         if(this.DEMON.active)
         {
+        var leng=this.seek(this.DEMON.lastMouse.x,this.DEMON.lastMouse.y);
         this.DEMON.veloX+=this.DEMON.accX;
-        this.DEMON.veloY+=this.DEMON.accY;    
+        this.DEMON.veloY+=this.DEMON.accY;
+        if(this.DEMON.veloX>0){
+        this.DEMON.veloX-=this.DEMON.veloX*.01;
+        }
+        if(this.DEMON.veloY>0){
+        this.DEMON.veloY-=this.DEMON.veloY*.01;
+        }
+        if(this.DEMON.veloX>10)
+        {
+            this.DEMON.veloX=10;
+        }
+         if(this.DEMON.veloY>10)
+        {
+            this.DEMON.veloY=10;
+        }
+           
         this.DEMON.posX+=this.DEMON.veloX;
         this.DEMON.posY+=this.DEMON.veloY;
-            
-        this.ctx.drawImage(this.DEMON.demonGIF[this.DEMON.demonCounter],this.DEMON.posX,this.DEMON.posY);
+        this.ctx2.save();
+         
+         this.ctx2.translate(-430,-100);
+       
+         if(this.DEMON.lastMouse.x>this.DEMON.posX+130)
+        {
+          this.ctx2.scale(-1,1);
+          this.ctx2.translate(-this.canvas.width,0);
+        }
+      
+        this.ctx2.drawImage(this.DEMON.demonGIF[this.DEMON.demonCounter],0,0);
+        this.ctx.drawImage(this.canvas2,this.DEMON.posX-150,this.DEMON.posY-230);
+        this.ctx2.clearRect(0,0,1000,1000);
+        this.ctx2.restore();
+        this.ctx2.clearRect(0,0,1000,1000);       
         if(this.frameSlower==5)
         {
         this.DEMON.demonCounter++;
         }
-        if(this.DEMON.demonCounter>59)
-        {
+        //explosion starts at frame 45
+        //chase starts at 15
+        
+        if(leng >500){
+            if(this.DEMON.demonCounter>14)
+                {
             this.DEMON.demonCounter=0;
+             }
         }
+        else{
+             if(this.DEMON.demonCounter>44)
+                {
+            this.DEMON.demonCounter=15;
+             }
+        }
+        
+        
         }
         this.frameSlower++;
         if(this.frameSlower>5)
@@ -233,15 +358,13 @@ app.main = {
      {
        var desiredx = xPos- this.DEMON.posX;  
        var desiredy = yPos -this.DEMON.posY;
-       var leng= Math.sqrt((desiredx*desiredx)+(desiredy*desiredy))
+       var leng= Math.sqrt((desiredx*desiredx)+(desiredy*desiredy));
         desiredx /=leng;
         desiredy /=leng;
-        this.DEMON.accX=desiredx;
-        this.DEMON.accY=desiredy;
         
-    //mouse fleer would have basic implementation 
-    //sort of copied and pasted from seek, but the opposite velocity   
-  
+        this.DEMON.accX=desiredx*.1;
+        this.DEMON.accY=desiredy*.1;
+        return leng;
      },
      drawButton: function(ctx,btn)
     {
@@ -332,7 +455,7 @@ app.main = {
     checkMousePos: function(e)
     {
         var mouse= getMouse(e);
-        this.seek(mouse.x,mouse.y);
+        this.DEMON.lastMouse=mouse;
         //reset everything to inactive
         if(this.gameState===this.GAMESTATE.BEGIN){
          
