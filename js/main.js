@@ -381,7 +381,7 @@ app.main = {
      },
      drawButton: function(ctx,btn)
     {
-        if(this.flash.flashList.lengh>5){this.bouncingBoard=true;}
+        if(this.flash.flashList.length>5){this.bouncingBoard=true;}
         if(this.bouncingBoard)
         {
             btn.posX+=1*this.bouncingChangeX;
