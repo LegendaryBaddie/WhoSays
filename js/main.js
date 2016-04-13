@@ -33,42 +33,42 @@ app.main = {
             
     }),
     buttonMagenta:Object.seal({
-        posX:0,
-        posY:0,
+        posX:200,
+        posY:1,
         color:5,
      
         buttonState:undefined,
     }),
     buttonCyan:Object.seal({
-        posX:0,
+        posX:200,
         posY:0,
         color:1,
   
         buttonState:undefined,
     }),
     buttonYellow:Object.seal({
-        posX:0,
+        posX:200,
         posY:0,
         color:9,
        
         buttonState:undefined,
     }),
     buttonGreen:Object.seal({
-        posX:0,
+        posX:200,
         posY:0,
         color:3,
         
         buttonState:undefined,
     }),
       buttonOrange:Object.seal({
-        posX:0,
+        posX:200,
         posY:0,
         color:7,
      
         buttonState:undefined,
     }),
      backgroundPad:Object.seal({
-        posX:0,
+        posX:200,
         posY:0,
         color:0,
      }),
@@ -109,6 +109,9 @@ app.main = {
     accY:0,
     }),
     frameSlower:0,
+    bouncingBoard:false,
+    bouncingChangeX:1,
+    bouncingChangeY:1,
     gameState:undefined,
 	init : function() {
 		console.log("app.main.init() called");
@@ -194,19 +197,20 @@ app.main = {
           if(this.gameState===this.GAMESTATE.BEGIN)
         {
              this.ctx.globalAlpha=1;
-             this.fillText(this.ctx,"Prototype Start Screen Lacks Title",500,240,"30pt Arial","red");
+             this.fillText(this.ctx,"Simon Says:Distract & Destroy",500,240,"30pt Arial","red");
              if(this.sButtonHover)
-             {
+             { 
                    this.ctx.fillStyle="black"
                    this.ctx.strokeStyle="white"
              this.ctx.fillRect(730,440,100,25);
-             this.ctx.strokeRect(730,440,100,25);
+              this.ctx.strokeRect(730,440,100,25);
              this.fillText(this.ctx,"Start",755,460,"18pt Arial","white");
              }else{
              this.ctx.fillStyle="white"
              this.ctx.fillRect(730,440,100,25);
              this.fillText(this.ctx,"Start",755,460,"18pt Arial","black");
              }
+             return;
         }
          if(this.attemptC*2>=this.flash.flashList.length)
         {
@@ -222,9 +226,15 @@ app.main = {
             this.flash.flashList=[0,0,0,0,0,0];
              for(var i =0; i<6;i+=2){
             this.flash.flashList[i]=Math.floor(getRandom(1,6));
+            this.bouncingBoard=false;
+            this.DEMON.active=false;
+            this.RABBIT.active=false;
+            this.MOTORCYCLE.active=false;
+            this.ALAN.active=false;
         }
         }
-        
+        this.fillText(this.ctx,this.attemptC,1320,100,"70pt Arial","red");
+        this.fillText(this.ctx,"/"+this.flash.flashList.length/2,1380,100,"70pt Arial","red");
       
         this.animateGifs();
 	},
@@ -233,17 +243,20 @@ app.main = {
     {
         
         
-       if(this.flash.flashList.length/2>5)
+       if(this.flash.flashList.length/2>6)
        {this.DEMON.active=true;}
     
         if(this.flash.flashList.length/2>7)
        {this.RABBIT.active=true;}
     
         if(this.flash.flashList.length/2>10)
-       {this.MOTORCYCLE.active=true;}
+       {this.MOTORCYCLE.active=true;
+        this.RABBIT.active=false;}
+       
     
-        if(this.flash.flashList.length/2>15)
-       {this.ALAN.active=true;}
+        if(this.flash.flashList.length/2>13)
+       {this.ALAN.active=true;
+        this.MOTORCYCLE.active=false; }
     
        
         //if motorcycle is active
@@ -368,6 +381,33 @@ app.main = {
      },
      drawButton: function(ctx,btn)
     {
+        if(this.flash.flashList.lengh>5){this.bouncingBoard=true;}
+        if(this.bouncingBoard)
+        {
+            btn.posX+=1*this.bouncingChangeX;
+            btn.posY+=1*this.bouncingChangeY;
+         
+            if(btn.posX>610){
+                this.bouncingChangeX=-1;
+                btn.posX-=1;
+            }
+            if(btn.posY>205){
+            this.bouncingChangeY=-1;
+            btn.posY-=1;
+            }
+            if(btn.posX<-180)
+            {
+                this.bouncingChangeX=1;
+                btn.posX+=1;
+            }
+            if(btn.posY<-200)
+            {
+                this.bouncingChangeY=1;
+                btn.posY+=1;
+            }
+        }
+        
+        
       if(btn.buttonState===this.BUTTONSTATE.INACTIVE)
       {
       ctx.save();
