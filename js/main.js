@@ -176,7 +176,7 @@ app.main = {
               
                    this.flash.counter+= 5;
                
-                this.fillText(this.ctx,this.flash.currentFlash,20,30,"30 Arial","red");
+                this.fillText(this.ctx,this.flash.currentFlash,20,30,"30 Titillium Web","red");
             }
         
         }
@@ -197,18 +197,18 @@ app.main = {
           if(this.gameState===this.GAMESTATE.BEGIN)
         {
              this.ctx.globalAlpha=1;
-             this.fillText(this.ctx,"Simon Says:Distract & Destroy",500,240,"30pt Arial","red");
+             this.fillText(this.ctx,"Simon Says:Distract & Destroy",500,240,"30pt Titillium Web","red");
              if(this.sButtonHover)
              { 
                    this.ctx.fillStyle="black"
                    this.ctx.strokeStyle="white"
              this.ctx.fillRect(730,440,100,25);
               this.ctx.strokeRect(730,440,100,25);
-             this.fillText(this.ctx,"Start",755,460,"18pt Arial","white");
+             this.fillText(this.ctx,"Start",755,460,"18pt Titillium Web","white");
              }else{
              this.ctx.fillStyle="white"
              this.ctx.fillRect(730,440,100,25);
-             this.fillText(this.ctx,"Start",755,460,"18pt Arial","black");
+             this.fillText(this.ctx,"Start",755,460,"18pt Titillium Web","black");
              }
              return;
         }
@@ -221,8 +221,8 @@ app.main = {
         if(this.gameState==this.GAMESTATE.OVER)
         {
             this.ctx.fillStyle='black';
-            this.fillText(this.ctx,"GAMEOVER",540,240,"30pt Arial","red");
-            this.fillText(this.ctx,"click to restart",540,440,"30pt Arial","red");
+            this.fillText(this.ctx,"GAMEOVER",540,240,"30pt Titillium Web","red");
+            this.fillText(this.ctx,"click to restart",540,440,"30pt Titillium Web","red");
             this.flash.flashList=[0,0,0,0,0,0];
              for(var i =0; i<6;i+=2){
             this.flash.flashList[i]=Math.floor(getRandom(1,6));
@@ -233,8 +233,8 @@ app.main = {
             this.ALAN.active=false;
         }
         }
-        this.fillText(this.ctx,this.attemptC,1320,100,"70pt Arial","red");
-        this.fillText(this.ctx,"/"+this.flash.flashList.length/2,1380,100,"70pt Arial","red");
+        this.fillText(this.ctx,this.attemptC,1320,100,"70pt Titillium Web","red");
+        this.fillText(this.ctx,"/"+this.flash.flashList.length/2,1380,100,"70pt Titillium Web","red");
       
         this.animateGifs();
 	},
