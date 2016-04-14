@@ -96,6 +96,13 @@ app.main = {
         rabbitGIF:new Array(),
         active:false,
     }), 
+    GECKO:Object.seal({
+        posX:0,
+        posY:0,
+        geckoCounter:0,
+        geckoGIF:new Array(),
+        active:false,
+    }), 
     DEMON:Object.seal({
     demonGIF:new Array(),
     demonCounter:0,
@@ -236,28 +243,60 @@ app.main = {
         this.fillText(this.ctx,this.attemptC,1320,100,"70pt Titillium Web","red");
         this.fillText(this.ctx,"/"+this.flash.flashList.length/2,1380,100,"70pt Titillium Web","red");
       
+     
         this.animateGifs();
 	},
 
+    chooseGif:function(){
+        if(this.ALAN.active){return;}
+        if(this.RABBIT.active){return;}
+        if(this.MOTORCYCLE.active){return;}
+        if(this.GECKO.active){return;}
+        var r = getRandom(0,4);
+        r=Math.floor(r);
+        console.log(r);
+        switch(r)
+        {
+            case 0:
+            this.RABBIT.active=true;
+            break;
+            case 1:
+            this.MOTORCYCLE.active=true;
+            break;
+            case 2:
+            this.ALAN.active=true;
+            break;
+            case 3:
+            this.GECKO.active=true;
+            break;
+        }
+    },
     animateGifs: function()
     {
         
         
-       if(this.flash.flashList.length/2>6)
+       if(this.flash.flashList.length/2>5)
        {this.DEMON.active=true;}
     
-        if(this.flash.flashList.length/2>7)
-       {this.RABBIT.active=true;}
-    
-        if(this.flash.flashList.length/2>10)
-       {this.MOTORCYCLE.active=true;
-        this.RABBIT.active=false;}
-       
-    
-        if(this.flash.flashList.length/2>13)
-       {this.ALAN.active=true;
-        this.MOTORCYCLE.active=false; }
-    
+        if(this.flash.flashList.length/2>3 && this.flash.currentFlash<1){
+          this.chooseGif();    
+        }
+
+       //draw gecko
+        if(this.GECKO.active&&this.gameState===this.GAMESTATE.FLASHING)
+        {
+            this.ctx.drawImage(this.GECKO.geckoGIF[this.GECKO.geckoCounter],200,0);
+            if(this.frameSlower==5)
+            {
+                this.GECKO.geckoCounter++;
+            }
+            if(this.GECKO.geckoCounter>32)
+            {
+                this.GECKO.geckoCounter=0;
+                 this.GECKO.active=false;
+            }
+            
+        } 
        
         //if motorcycle is active
         if(this.MOTORCYCLE.active&&this.gameState===this.GAMESTATE.FLASHING)
@@ -270,6 +309,7 @@ app.main = {
             if(this.MOTORCYCLE.motoCounter>18)
             {
                 this.MOTORCYCLE.motoCounter=0;
+                 this.MOTORCYCLE.active=false;
             }
             
         }   
@@ -285,6 +325,7 @@ app.main = {
             if(this.RABBIT.rabbitCounter>31)
             {
                 this.RABBIT.rabbitCounter=0;
+                 this.RABBIT.active=false;
             }
         }
        
@@ -296,9 +337,10 @@ app.main = {
          {
              this.ALAN.alanCounter++;
          }   
-         if(this.ALAN.alanCounter>102)
+         if(this.ALAN.alanCounter>97)
          {
              this.ALAN.alanCounter=0;
+              this.ALAN.active=false;
          }
         }
         //if demon is active 
@@ -381,7 +423,7 @@ app.main = {
      },
      drawButton: function(ctx,btn)
     {
-        if(this.flash.flashList.lengh>5){this.bouncingBoard=true;}
+        if(this.flash.flashList.length/2>7){this.bouncingBoard=true;}
         if(this.bouncingBoard)
         {
             btn.posX+=1*this.bouncingChangeX;

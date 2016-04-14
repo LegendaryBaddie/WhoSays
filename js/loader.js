@@ -56,9 +56,9 @@ window.onload = function(){
               for(var i=0;i<32;i++)
               {   
                   if(i>9){
-                 rabbitStuff.push("media/rabbitGIF/rabbit_temp00"+i.toString()+".png");
+                 rabbitStuff.push("media/rabbitGIF/rabbit00"+i.toString()+".png");
                   }else{
-                 rabbitStuff.push("media/rabbitGIF/rabbit_temp000"+i.toString()+".png");
+                 rabbitStuff.push("media/rabbitGIF/rabbit000"+i.toString()+".png");
                   }
               }
                var motorcycleStuff=[];
@@ -71,23 +71,29 @@ window.onload = function(){
                   }
               }  
               var alanStuff=[];
-              for(var i=0;i<103;i++)
+              for(var i=1;i<99;i++)
               {   
-                  if(i>99)
-                  {
-                  alanStuff.push("media/alanGIF/alan0"+i.toString()+".png");
-                  }else if(i>9){
+                 if(i>9){
                  alanStuff.push("media/alanGIF/alan00"+i.toString()+".png");
                   }else{
                  alanStuff.push("media/alanGIF/alan000"+i.toString()+".png");
                   }
               }  
-              
+              var geckoStuff=[];
+              for(var i=0;i<33;i++)
+              {
+               if(i>9){
+                 geckoStuff.push("media/geckoGIF/gecko00"+i.toString()+".png");
+                  }else{
+                 geckoStuff.push("media/geckoGIF/gecko000"+i.toString()+".png");
+                  }   
+              }
               
 			preload(stuff,app.main.images);
             preload(demonStuff,app.main.DEMON.demonGIF);
             preload(rabbitStuff,app.main.RABBIT.rabbitGIF);
             preload(motorcycleStuff,app.main.MOTORCYCLE.motoGIF);
             preload(alanStuff,app.main.ALAN.alanGIF);
+            preload(geckoStuff,app.main.GECKO.geckoGIF);
 	app.main.init();
 }
