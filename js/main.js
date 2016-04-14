@@ -107,6 +107,7 @@ app.main = {
     demonGIF:new Array(),
     demonCounter:0,
     active:false,
+    boom:false,
     lastMouse:undefined,
     posX:0,
     posY:0,
@@ -115,6 +116,7 @@ app.main = {
     accX:0,
     accY:0,
     }),
+    sound:undefined,
     frameSlower:0,
     bouncingBoard:false,
     bouncingChangeX:1,
@@ -127,7 +129,8 @@ app.main = {
 		this.ctx = this.canvas.getContext('2d');
         this.canvas2 = document.getElementById('c2');
         this.ctx2=this.canvas2.getContext('2d');
-        
+ 
+     
         // initialize buttons
        //magenta button       
         
@@ -160,6 +163,7 @@ app.main = {
         //mouseEvents
         this.canvas.onmousemove=this.checkMousePos.bind(this);
         this.canvas.onmousedown=this.mouseDown.bind(this);
+        this.sound.playBGAudio();
 		// start the game loop
 		this.update();
 	},
@@ -246,7 +250,10 @@ app.main = {
      
         this.animateGifs();
 	},
-
+    playEffect:function () {
+        
+    },
+    playBGAudio:function(){},
     chooseGif:function(){
         if(this.ALAN.active){return;}
         if(this.RABBIT.active){return;}
@@ -275,7 +282,7 @@ app.main = {
     {
         
         
-       if(this.flash.flashList.length/2>5)
+       if(this.flash.flashList.length/2>5 && this.gameState===this.GAMESTATE.FLASHING)
        {this.DEMON.active=true;}
     
         if(this.flash.flashList.length/2>3 && this.flash.currentFlash<1){
@@ -290,6 +297,10 @@ app.main = {
             {
                 this.GECKO.geckoCounter++;
             }
+            if(this.GECKO.geckoCounter==18)
+            {
+                this.sound.playEffect(3);
+            }
             if(this.GECKO.geckoCounter>32)
             {
                 this.GECKO.geckoCounter=0;
@@ -301,10 +312,14 @@ app.main = {
         //if motorcycle is active
         if(this.MOTORCYCLE.active&&this.gameState===this.GAMESTATE.FLASHING)
         {
-            this.ctx.drawImage(this.MOTORCYCLE.motoGIF[this.MOTORCYCLE.motoCounter],0,200);
+            this.ctx.drawImage(this.MOTORCYCLE.motoGIF[this.MOTORCYCLE.motoCounter],200,200);
             if(this.frameSlower==5)
             {
                 this.MOTORCYCLE.motoCounter++;
+            }
+            if(this.MOTORCYCLE.motoCounter==1)
+            {
+                this.sound.playEffect(4);
             }
             if(this.MOTORCYCLE.motoCounter>18)
             {
@@ -322,6 +337,14 @@ app.main = {
             {
                 this.RABBIT.rabbitCounter++;
             }
+            if(this.RABBIT.rabbitCounter==19)
+            {
+                this.sound.playEffect(6);
+            }
+            if(this.RABBIT.rabbitCounter==25)
+            {
+                this.sound.playEffect(5);
+            }
             if(this.RABBIT.rabbitCounter>31)
             {
                 this.RABBIT.rabbitCounter=0;
@@ -337,6 +360,10 @@ app.main = {
          {
              this.ALAN.alanCounter++;
          }   
+         if(this.ALAN.alanCounter==15||this.ALAN.alanCounter==25||this.ALAN.alanCounter==36||this.ALAN.alanCounter==46||this.ALAN.alanCounter==56||this.ALAN.alanCounter==66||this.ALAN.alanCounter==75||this.ALAN.alanCounter==85)
+        {
+            this.sound.playEffect(0);
+        }
          if(this.ALAN.alanCounter>97)
          {
              this.ALAN.alanCounter=0;
@@ -387,7 +414,20 @@ app.main = {
         }
         //explosion starts at frame 45
         //chase starts at 15
-        
+        if(this.DEMON.boom)
+        {
+            if(this.DEMON.demonCounter==46)
+            {
+                this.sound.playEffect(7);
+            }
+            if(this.DEMON.demonCounter==59)
+            {
+                this.DEMON.demonCounter=0;
+                this.DEMON.active=false;
+                this.DEMON.boom=false;
+            }
+        }
+        else{
         if(leng >500){
             if(this.DEMON.demonCounter>14)
                 {
@@ -399,6 +439,7 @@ app.main = {
                 {
             this.DEMON.demonCounter=15;
              }
+        }
         }
         
         
@@ -501,6 +542,11 @@ app.main = {
             this.flash.flashList.push(0);
             this.restart();
         }
+        if(this.gameState===this.GAMESTATE.FLASHING)
+        {
+             this.sound.playEffect(2);
+             return;
+        }
        var check=this.checkMousePos(e);
        switch(check)
        {
@@ -508,30 +554,39 @@ app.main = {
            this.buttonMagenta.buttonState=this.BUTTONSTATE.DOWN;
            this.checkAttempt(1);
            this.attemptC++;
+           this.sound.playEffect(1);
            break;
            case 1:
            this.buttonYellow.buttonState=this.BUTTONSTATE.DOWN;
            this.checkAttempt(2);
            this.attemptC++;
+              this.sound.playEffect(1);
            break;
            case 2:
            this.buttonGreen.buttonState=this.BUTTONSTATE.DOWN;
            this.checkAttempt(3);
            this.attemptC++;
+            this.sound.playEffect(1);
            break;
            case 3:
            this.buttonCyan.buttonState=this.BUTTONSTATE.DOWN;
            this.checkAttempt(4);
            this.attemptC++;
+           this.sound.playEffect(1);
            break;
            case 4:
            this.buttonOrange.buttonState=this.BUTTONSTATE.DOWN;
            this.checkAttempt(5);
            this.attemptC++;
+          this.sound.playEffect(1);
            break;
            case 25:
            this.gameState=this.GAMESTATE.FLASHING;
            break;
+           case 10:
+           this.DEMON.boom=true;
+           this.DEMON.demonCounter=45;
+            break;
        }
     },
     checkMousePos: function(e)
@@ -539,6 +594,17 @@ app.main = {
         var mouse= getMouse(e);
         this.DEMON.lastMouse=mouse;
         //reset everything to inactive
+        if(mouse.x>this.DEMON.posX && mouse.x<this.DEMON.posX+200)
+        {
+            if(mouse.y>this.DEMON.posY-50 && mouse.y<this.DEMON.posY+220)
+            {
+                if(this.DEMON.active)
+                {
+                
+                return 10;
+                }
+            }
+        }
         if(this.gameState===this.GAMESTATE.BEGIN){
          
             if(mouse.x>730&& mouse.x<830 && mouse.y>440 && mouse.y<465)

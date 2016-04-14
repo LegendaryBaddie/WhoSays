@@ -9,9 +9,8 @@ app.sound = (function(){
 	console.log("sound.js module loaded");
 	var bgAudio = undefined;
 	var effectAudio = undefined;
-	var currentEffect = 0;
-	var currentDirection = 1;
-	var effectSounds = ["1.mp3","2.mp3","3.mp3","4.mp3","5.mp3","6.mp3","7.mp3","8.mp3"];
+	
+	var effectSounds = ["Alan_squeak.mp3","Button_Down_sound.mp3","Button_DownUp_sound.mp3","gecko.mp3","moto1_scream.mp3","rabbit_crash.mp3","rabbit_jump.mp3","demon_pop.mp3"];
 	
 
 	function init(){
@@ -28,14 +27,10 @@ app.sound = (function(){
 	function playBGAudio(){
         bgAudio.play();
     }
-	function playEffect(){
-		effectAudio.src = "media/" + effectSounds[currentEffect];
+	function playEffect(currentEffect){
+		effectAudio.src = "media/Sound/" + effectSounds[currentEffect];
 		effectAudio.play();
-		currentEffect += currentDirection;
-		if (currentEffect == effectSounds.length || currentEffect == -1){
-			currentDirection *= -1;
-			currentEffect += currentDirection;
-		}
+		
 	}
 		return{
             init:init,

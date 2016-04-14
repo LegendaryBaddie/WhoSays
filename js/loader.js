@@ -22,6 +22,8 @@ window.onfocus=function(){
 var images = new Array();
 window.onload = function(){
 	console.log("window.onload called");
+    app.sound.init();
+    app.main.sound=app.sound;
     //preload array via https://perishablepress.com/3-ways-preload-images-css-javascript-ajax/
    
    
